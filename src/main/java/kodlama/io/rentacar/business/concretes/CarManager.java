@@ -60,12 +60,18 @@ public class CarManager implements CarService {
     }
 
     @Override
-    public List<GetAllCarsResponse> getAll() {
-        List<Car> cars=carRepository.findAll();
+    public List<GetAllCarsResponse> getAll(boolean includeMaintenance) {
+
+        List<Car> cars=filterCarsByMaintenanceState(includeMaintenance);
         List<GetAllCarsResponse> getAllCarsResponses=cars.stream().map(car -> modelMapper.map(car,GetAllCarsResponse.class)).toList();
         return getAllCarsResponses;
     }
-
+    private List<Car> filterCarsByMaintenanceState(boolean includeMaintenance){
+        if(includeMaintenance){
+            return carRepository.findAll();
+        }
+        return carRepository.findAllByStateIsNot(State.MAINTANCE);
+    }
     public void checkIfCarExists(int car_id) {
         if(!carRepository.existsById(car_id)) throw new RuntimeException("aranan araç bulunamadı");
     }
@@ -80,6 +86,11 @@ public class CarManager implements CarService {
        UpdateCarRequest updateCarRequest=modelMapper.map(car,UpdateCarRequest.class);
        update(car.getId(),updateCarRequest);
 
+    }
+// arabanın stateini dönecek
+    @Override
+    public State getStateCar(int carId) {
+        return carRepository.getCarState(carId);
     }
 
 }

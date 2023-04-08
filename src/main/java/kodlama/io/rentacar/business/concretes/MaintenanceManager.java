@@ -1,6 +1,5 @@
 package kodlama.io.rentacar.business.concretes;
 
-import com.sun.tools.javac.Main;
 import kodlama.io.rentacar.business.abstracts.CarService;
 import kodlama.io.rentacar.business.abstracts.MaintenanceService;
 import kodlama.io.rentacar.business.dto.request.create.CreateMaintenanceRequest;
@@ -10,18 +9,16 @@ import kodlama.io.rentacar.business.dto.response.create.CreateMaintenanceRespons
 import kodlama.io.rentacar.business.dto.response.get.GetAllMaintenancesResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetCarResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetMaintenanceResponse;
-import kodlama.io.rentacar.business.dto.response.update.UpdateCarResponse;
 import kodlama.io.rentacar.business.dto.response.update.UpdateMaintenanceResponse;
-
 import kodlama.io.rentacar.entities.Car;
 import kodlama.io.rentacar.entities.Maintenance;
 import kodlama.io.rentacar.entities.enums.State;
 import kodlama.io.rentacar.repository.MaintenanceRepository;
 import lombok.AllArgsConstructor;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -33,57 +30,105 @@ public class MaintenanceManager implements MaintenanceService {
 
     @Override
     public List<GetAllMaintenancesResponse> getAll() {
-        List<Maintenance> listMaintenances=maintenanceRepository.findAll();
-        List<GetAllMaintenancesResponse> maintenancesResponses=listMaintenances.
+        List<Maintenance> listMaintenances = maintenanceRepository.findAll();
+        List<GetAllMaintenancesResponse> maintenancesResponses = listMaintenances.
                 stream().
-                map(maintenance -> modelMapper.map(maintenance,GetAllMaintenancesResponse.class)).toList();
+                map(maintenance -> modelMapper.map(maintenance, GetAllMaintenancesResponse.class)).toList();
         return maintenancesResponses;
     }
 
     @Override
     public GetMaintenanceResponse getById(int maintenanceId) {
-        Maintenance maintenance=maintenanceRepository.findById(maintenanceId).orElseThrow();
-        GetMaintenanceResponse getMaintenanceResponse=modelMapper.map(maintenance,GetMaintenanceResponse.class);
+
+        Maintenance maintenance = maintenanceRepository.findById(maintenanceId).orElseThrow();
+        GetMaintenanceResponse getMaintenanceResponse = modelMapper.map(maintenance, GetMaintenanceResponse.class);
         return getMaintenanceResponse;
     }
 
     @Override
     public CreateMaintenanceResponse add(CreateMaintenanceRequest createMaintenanceRequest) {
-        Maintenance maintenance=modelMapper.map(createMaintenanceRequest,Maintenance.class);
+        // araç bakım kontrolü
+        checkIfMaintenanceExists(createMaintenanceRequest.getCarId());
+        // aracın kirada olup olmadığını kontrol et
+        checkCarAvailabilityForMaintenance(createMaintenanceRequest.getCarId());
+        Maintenance maintenance = modelMapper.map(createMaintenanceRequest, Maintenance.class);
         maintenance.setId(0);
-        GetCarResponse getCarResponse=carService.getById(createMaintenanceRequest.getCarId());
-        Car car=modelMapper.map(getCarResponse,Car.class);
+        maintenance.setDateIn(LocalDateTime.now());
+        GetCarResponse getCarResponse = carService.getById(createMaintenanceRequest.getCarId());
+        Car car = modelMapper.map(getCarResponse, Car.class);
         car.setId(createMaintenanceRequest.getCarId());
         car.setState(State.MAINTANCE);
-        carService.update(car.getId(),modelMapper.map(car, UpdateCarRequest.class));
-        Maintenance saveMaintenance=maintenanceRepository.save(maintenance);
-        CreateMaintenanceResponse createMaintenanceResponse=modelMapper.map(saveMaintenance,CreateMaintenanceResponse.class);
+        carService.update(car.getId(), modelMapper.map(car, UpdateCarRequest.class));
+        Maintenance saveMaintenance = maintenanceRepository.save(maintenance);
+        CreateMaintenanceResponse createMaintenanceResponse = modelMapper.map(saveMaintenance, CreateMaintenanceResponse.class);
         return createMaintenanceResponse;
     }
+
 
     @Override
     public UpdateMaintenanceResponse update(int maintenanceId, UpdateMaintenanceRequest updateMaintenanceRequest) {
         checkIfMaintenanceExists(maintenanceId);
         carService.checkIfCarExists(updateMaintenanceRequest.getCarId());
-        Maintenance maintenance=modelMapper.map(updateMaintenanceRequest,Maintenance.class);
+        Maintenance maintenance = modelMapper.map(updateMaintenanceRequest, Maintenance.class);
         maintenance.setId(maintenanceId);
         maintenanceRepository.save(maintenance);
-        if(updateMaintenanceRequest.isRepaired()){
-            carService.changeStateCar(updateMaintenanceRequest.getCarId(),State.AVAILABLE);
-        }
-       UpdateMaintenanceResponse updateMaintenanceResponse=modelMapper.map(maintenance,UpdateMaintenanceResponse.class);
+        checkIfChangeIsRepaired(maintenanceId, updateMaintenanceRequest.getCarId());
+        UpdateMaintenanceResponse updateMaintenanceResponse = modelMapper.map(maintenance, UpdateMaintenanceResponse.class);
         return updateMaintenanceResponse;
     }
 
     @Override
     public void delete(int maintenanceId) {
-        GetMaintenanceResponse maintenance=getById(maintenanceId);
+        makeCarAvailableIfIsRepaired(maintenanceId);
         maintenanceRepository.deleteById(maintenanceId);
-        carService.changeStateCar(maintenance.getCarId(),State.AVAILABLE);
-
-    }
-    public void checkIfMaintenanceExists(int maintenanceId){
-        if(!maintenanceRepository.existsById(maintenanceId)) throw new RuntimeException("Aranan kayıt  bulunamadı");
     }
 
+    @Override
+    public GetMaintenanceResponse returnCarFromMaintenance(int carId) {
+        checkIfCarIsNotUnderMaintenance(carId);
+        Maintenance maintenance = maintenanceRepository.findMaintenanceByCarIdAndIsCompletedFalse(carId);
+        maintenance.setRepaired(true);
+        maintenance.setDateOut(LocalDateTime.now());
+        maintenanceRepository.save(maintenance);
+        carService.changeStateCar(carId, State.AVAILABLE);
+        GetMaintenanceResponse response = modelMapper.map(maintenance, GetMaintenanceResponse.class);
+
+        return response;
+    }
+
+    private void checkIfMaintenanceExists(int carId) {
+        if (maintenanceRepository.existsByCarIdAndRepairedFalse(carId)) {
+            throw new RuntimeException("Araç şuanda bakımda!");
+        }
+    }
+
+    public void checkIfCarIsNotUnderMaintenance(int maintenanceId) {
+        if (!maintenanceRepository.existsById(maintenanceId)){
+            throw new RuntimeException("Araç şuan bakımda");
+        }
+
+    }
+
+    public void checkIfChangeIsRepaired(int maintenanceId, int carId) {
+        if (maintenanceRepository.getById(maintenanceId).isRepaired()) {
+            carService.changeStateCar(carId, State.AVAILABLE);
+        }
+    }
+
+    private void checkCarAvailabilityForMaintenance(int carId) {
+        if (carService.getById(carId).getState().equals(State.RENTED)) {
+            throw new RuntimeException("Araç kirada olduğu için bakıma alınamaz!");
+        }
+    }
+    private void makeCarAvailableIfIsRepaired(int maintenanceId){
+        int carId=maintenanceRepository.findById(maintenanceId).get().getCar().getId();
+        if(maintenanceRepository.findById(maintenanceId).get().isRepaired()){
+            carService.changeStateCar(carId,State.AVAILABLE);
+        }
+    }
 }
+/* private void checkIfMaintenance(int carId){
+        if (!maintenanceRepository.existsByCarIdAndRepairedFalse(carId)) {
+            throw new RuntimeException("Bakımda böyle bir araç bulunamadı!");
+        }
+    }*/

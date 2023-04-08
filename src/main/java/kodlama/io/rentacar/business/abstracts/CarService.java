@@ -19,8 +19,9 @@ public interface CarService {
     void delete(int brand_id);
     UpdateCarResponse update(int brand_id, UpdateCarRequest brand);
     GetCarResponse getById(int brand_id);
-    List<GetAllCarsResponse> getAll();
+    List<GetAllCarsResponse> getAll(boolean includeMaintenance);
     void changeStateCar(int carId, State state);
+    State getStateCar(int carId);
     void checkIfCarExists(int car_id);
 
 

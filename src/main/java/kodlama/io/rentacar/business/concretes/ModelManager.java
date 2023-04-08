@@ -12,11 +12,7 @@ import kodlama.io.rentacar.entities.Model;
 import kodlama.io.rentacar.repository.ModelRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-
-import org.modelmapper.internal.bytebuddy.matcher.StringMatcher;
 import org.springframework.stereotype.Service;
-
-import org.springframework.ui.ModelMap;
 
 import java.util.List;
 

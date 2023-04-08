@@ -8,7 +8,7 @@ import kodlama.io.rentacar.business.dto.response.create.CreateMaintenanceRespons
 import kodlama.io.rentacar.business.dto.response.get.GetAllMaintenancesResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetMaintenanceResponse;
 import kodlama.io.rentacar.business.dto.response.update.UpdateMaintenanceResponse;
-import org.hibernate.sql.Update;
+
 
 import java.util.List;
 
@@ -18,4 +18,5 @@ public interface MaintenanceService {
     CreateMaintenanceResponse add(CreateMaintenanceRequest createMaintenanceRequest);
     UpdateMaintenanceResponse update(int maintenanceId, UpdateMaintenanceRequest updateMaintenanceRequest);
     void delete(int maintenanceId);
+    GetMaintenanceResponse returnCarFromMaintenance(int carId);
 }
