@@ -10,13 +10,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreateRentedRequest {
+public class CreatePaymentRequest extends PaymentRequest {
 
-
-    private int carId;
-
-    private int rentedForDays;
-    // kart bilgileri gilmeli
-    private PaymentRequest paymentRequest;
-
+    private String cardNumber;
+    private String cardHolder;
+    private int cardExpirationYear;
+    private int cardExpirationMonth;
+    private String cardCvv;
+    private double balance;// bakiye
 }

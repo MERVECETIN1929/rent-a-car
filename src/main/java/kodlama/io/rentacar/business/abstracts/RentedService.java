@@ -15,5 +15,5 @@ public interface RentedService {
     CreateRentedResponse add(CreateRentedRequest request);
     UpdateRentedResponse update(int id,UpdateRentedRequest request);
     void delete(int id);
-    GetRentedResponse returnFromRented(int carId);
+    //GetRentedResponse returnFromRented(int carId);
 }

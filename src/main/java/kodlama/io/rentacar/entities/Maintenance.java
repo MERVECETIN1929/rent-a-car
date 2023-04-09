@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -23,12 +24,11 @@ public class Maintenance {
     @JoinColumn(name="carID")
     private Car car;
 
-    @Column(nullable = false)
-    @CreationTimestamp
-    private Date dateIn;
 
-    @Column(nullable = true)
-    private Date dateOut;
+    private LocalDateTime dateIn;
+
+
+    private LocalDateTime dateOut;
 
     private double cost;
     private boolean isRepaired;

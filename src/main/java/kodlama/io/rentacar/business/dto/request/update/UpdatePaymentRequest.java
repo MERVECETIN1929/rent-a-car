@@ -1,4 +1,4 @@
-package kodlama.io.rentacar.business.dto.request.create;
+package kodlama.io.rentacar.business.dto.request.update;
 
 import kodlama.io.rentacar.business.dto.request.PaymentRequest;
 import lombok.AllArgsConstructor;
@@ -10,13 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreateRentedRequest {
-
-
-    private int carId;
-
-    private int rentedForDays;
-    // kart bilgileri gilmeli
-    private PaymentRequest paymentRequest;
-
+public class UpdatePaymentRequest extends PaymentRequest {
+    private double balance;// bakiye
 }

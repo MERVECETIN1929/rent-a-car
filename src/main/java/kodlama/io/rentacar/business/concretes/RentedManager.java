@@ -47,18 +47,21 @@ public class RentedManager implements RentedService {
        Rented rented=mapper.map(request,Rented.class);
        rented.setId(0);
        rented.setStartDate(LocalDateTime.now());
-       rented.setTotalPrice(rented.getDailyPrice()* rented.getRentedForDays());
+       rented.setTotalPrice(getTotalPrice(rented));
        repository.save(rented);
        // burada bir hata oluşursa carı etkilemesin diye üstte yazılır
        carService.changeStateCar(request.getCarId(), State.RENTED);
        return mapper.map(rented,CreateRentedResponse.class);
     }
 
+
+
     @Override
     public UpdateRentedResponse update(int id, UpdateRentedRequest request) {
        checkIfCarRented(request.getCarId());
        Rented rented=mapper.map(request, Rented.class);
        rented.setId(id);
+       rented.setTotalPrice(getTotalPrice(rented));
        repository.save(rented);
        return mapper.map(rented, UpdateRentedResponse.class);
     }
@@ -67,15 +70,23 @@ public class RentedManager implements RentedService {
     @Override
     public void delete(int id) {
         checkIfRentedExists(id);
+        int carId= repository.findById(id).get().getCar().getId();
+        carService.changeStateCar(carId,State.AVAILABLE);
         repository.deleteById(id);
     }
 
-    @Override
-    public GetRentedResponse returnFromRented(int id) {
-        return null;
-    }
+
+   /* public GetRentedResponse returnFromRented(int carId) {
+        Rented rented=repository.findById(id).orElseThrow();
+        rented.setId(id);
+        rented.setRented(true);
+        carService.changeStateCar(rented.getCar().getId(),State.AVAILABLE);
+        repository.save(rented);
+        GetRentedResponse getRentedResponse=mapper.map(rented,GetRentedResponse.class);
+        return getRentedResponse;
+    }*/
     private void checkIfCarRented(int carId){
-        if(repository.existsByCarIdAndRentedFalse(carId)){
+        if(repository.existsByCarIdAndIsRentedFalse(carId)){
             throw new RuntimeException("araç kiralik durumda");
         }
     }
@@ -88,6 +99,11 @@ public class RentedManager implements RentedService {
         if(!repository.existsById(rentedId)){
             throw new NotFoundException("Aracın rented tablosunda kaydı yok");
         }
+    }
+    // totalPrice değeri kullanım alanı fazla olduğu için ayrı metot halinde tanımlanması gerekir
+    // alt+ctrl+m => seçtiğin satırları fonksiyon olarak dışarı çıkarır
+    private  double getTotalPrice(Rented rented) {
+        return rented.getDailyPrice() * rented.getRentedForDays();
     }
 
 }

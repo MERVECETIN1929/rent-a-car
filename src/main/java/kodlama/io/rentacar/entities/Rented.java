@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 /*6. Kiralama nesnesinde olması gereken özellikler: id, carId, dailyPrice, rentedForDays, totalPrice, startDate.*/
+@Table(name="rented")
 public class Rented {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

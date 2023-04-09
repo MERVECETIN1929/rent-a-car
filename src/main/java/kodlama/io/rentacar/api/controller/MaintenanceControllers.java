@@ -52,6 +52,10 @@ public class MaintenanceControllers {
     public UpdateMaintenanceResponse update(@PathVariable int maintenanceId,@RequestBody  UpdateMaintenanceRequest updateMaintenanceRequest){
         return maintenanceService.update(maintenanceId,updateMaintenanceRequest);
     }
+    @PutMapping("/return")
+    public GetMaintenanceResponse returnCarFromMaintenance(@RequestParam  int carId){
+        return maintenanceService.returnCarFromMaintenance(carId);
+    }
     @DeleteMapping("/{maintenanceId}")
     public void delete(@PathVariable int maintenanceId){
         maintenanceService.delete(maintenanceId);

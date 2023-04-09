@@ -86,7 +86,7 @@ public class MaintenanceManager implements MaintenanceService {
     @Override
     public GetMaintenanceResponse returnCarFromMaintenance(int carId) {
         checkIfCarIsNotUnderMaintenance(carId);
-        Maintenance maintenance = maintenanceRepository.findMaintenanceByCarIdAndIsCompletedFalse(carId);
+        Maintenance maintenance = maintenanceRepository.findMaintenanceByCarIdAndIsRepairedFalse(carId);
         maintenance.setRepaired(true);
         maintenance.setDateOut(LocalDateTime.now());
         maintenanceRepository.save(maintenance);
@@ -97,7 +97,7 @@ public class MaintenanceManager implements MaintenanceService {
     }
 
     private void checkIfMaintenanceExists(int carId) {
-        if (maintenanceRepository.existsByCarIdAndRepairedFalse(carId)) {
+        if (maintenanceRepository.existsByCarIdAndIsRepairedFalse(carId)) {
             throw new RuntimeException("Araç şuanda bakımda!");
         }
     }

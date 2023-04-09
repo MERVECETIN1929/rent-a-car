@@ -4,5 +4,5 @@ import kodlama.io.rentacar.entities.Rented;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RentedRepository extends JpaRepository<Rented,Integer> {
-    boolean existsByCarIdAndRentedFalse(int carId);
+    boolean existsByCarIdAndIsRentedFalse(int carId);
 }
