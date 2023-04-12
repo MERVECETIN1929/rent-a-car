@@ -10,12 +10,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreateRentedRequest {
+public class CreateRentalRequest {
 
 
     private int carId;
 
     private int rentedForDays;
+    private double dailyPrice;
     // kart bilgileri gilmeli
     private PaymentRequest paymentRequest;
 

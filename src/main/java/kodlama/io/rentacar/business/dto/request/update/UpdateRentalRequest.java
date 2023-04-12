@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class UpdateRentedRequest {
+public class UpdateRentalRequest {
 
     private int carId;
     private int rentedForDays;

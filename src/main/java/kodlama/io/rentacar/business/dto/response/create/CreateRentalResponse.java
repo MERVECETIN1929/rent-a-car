@@ -1,4 +1,4 @@
-package kodlama.io.rentacar.business.dto.response.get;
+package kodlama.io.rentacar.business.dto.response.create;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GetAllRentedResponse {
+public class CreateRentalResponse {
+
     private int id;
 
     private int carId;

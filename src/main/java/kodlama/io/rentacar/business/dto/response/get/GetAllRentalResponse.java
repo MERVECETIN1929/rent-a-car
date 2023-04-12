@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GetRentedResponse {
+public class GetAllRentalResponse {
     private int id;
 
     private int carId;

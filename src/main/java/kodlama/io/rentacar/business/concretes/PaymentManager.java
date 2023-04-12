@@ -1,6 +1,7 @@
 package kodlama.io.rentacar.business.concretes;
 
 import kodlama.io.rentacar.business.abstracts.PaymentService;
+import kodlama.io.rentacar.business.abstracts.PosService;
 import kodlama.io.rentacar.business.dto.request.create.CreatePaymentRequest;
 import kodlama.io.rentacar.business.dto.request.update.UpdatePaymentRequest;
 import kodlama.io.rentacar.business.dto.response.create.CreatePaymentResponse;
@@ -21,6 +22,7 @@ import java.util.List;
 public class PaymentManager implements PaymentService {
     private  final PaymentRepository repository;
     private final ModelMapper mapper;
+    private final PosService posService;
 
     @Override
     public List<GetAlLPaymentsResponse> getAll() {
@@ -73,6 +75,8 @@ public class PaymentManager implements PaymentService {
         Payment payment=repository.findByCardNumber(request.getCardNumber());
         // balance ve price kontrolü yapıldı
         checkIfBalanceIdEnough(payment.getBalance(), request.getPrice());
+        // fake pos service
+        posService.pay();
         payment.setBalance(payment.getBalance()-request.getPrice());
         repository.save(payment);
     }
