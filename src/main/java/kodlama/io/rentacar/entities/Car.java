@@ -14,24 +14,22 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="cars")
+@Table(name = "cars")
 public class Car {
+    @OneToMany(mappedBy = "car")
+    List<Rental> rentalList;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int modelYear;
-
     private String plate;
-
     private double dailyPrice;
     @Enumerated(EnumType.STRING)// VTEDE KAYIT ALIRKEN STRİNGİ VTYE KAYDEDER
     private State state;
     @ManyToOne
-    @JoinColumn(name="modelId")
+    @JoinColumn(name = "modelId")
     private Model model;
     @OneToMany(mappedBy = "car")
     private List<Maintenance> maintenances;
-    @OneToMany(mappedBy = "car")
-    List<Rental> rentalList;
 
 }

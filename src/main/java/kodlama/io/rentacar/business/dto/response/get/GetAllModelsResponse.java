@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class GetAllModelsResponse {
-    private  int id;
+    private int id;
     private String name;
     private int brandId;
 }

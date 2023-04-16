@@ -12,9 +12,14 @@ import java.util.List;
 
 public interface PaymentService {
     List<GetAlLPaymentsResponse> getAll();
+
     GetPaymentResponse getById(int id);
+
     CreatePaymentResponse add(CreatePaymentRequest request);
+
     UpdatePaymentResponse update(int id, UpdatePaymentRequest request);
+
     void delete(int id);
+
     void processRentedPayment(CreateRentedPaymentRequest request);
 }

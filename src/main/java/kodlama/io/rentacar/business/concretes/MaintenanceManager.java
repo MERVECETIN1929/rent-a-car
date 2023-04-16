@@ -10,6 +10,7 @@ import kodlama.io.rentacar.business.dto.response.get.GetAllMaintenancesResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetCarResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetMaintenanceResponse;
 import kodlama.io.rentacar.business.dto.response.update.UpdateMaintenanceResponse;
+import kodlama.io.rentacar.business.rules.MaintenanceBusinessRules;
 import kodlama.io.rentacar.entities.Car;
 import kodlama.io.rentacar.entities.Maintenance;
 import kodlama.io.rentacar.entities.enums.State;
@@ -27,6 +28,7 @@ public class MaintenanceManager implements MaintenanceService {
     private final ModelMapper modelMapper;
     private final MaintenanceRepository maintenanceRepository;
     private final CarService carService;
+    private final MaintenanceBusinessRules rules;
 
     @Override
     public List<GetAllMaintenancesResponse> getAll() {
@@ -48,9 +50,9 @@ public class MaintenanceManager implements MaintenanceService {
     @Override
     public CreateMaintenanceResponse add(CreateMaintenanceRequest createMaintenanceRequest) {
         // araç bakım kontrolü
-        checkIfMaintenanceExists(createMaintenanceRequest.getCarId());
+        rules.checkIfMaintenanceExists(createMaintenanceRequest.getCarId());
         // aracın kirada olup olmadığını kontrol et
-        checkCarAvailabilityForMaintenance(createMaintenanceRequest.getCarId());
+        rules.checkCarAvailabilityForMaintenance(carService.getById(createMaintenanceRequest.getCarId()).getState());
         Maintenance maintenance = modelMapper.map(createMaintenanceRequest, Maintenance.class);
         maintenance.setId(0);
         maintenance.setDateIn(LocalDateTime.now());
@@ -67,8 +69,8 @@ public class MaintenanceManager implements MaintenanceService {
 
     @Override
     public UpdateMaintenanceResponse update(int maintenanceId, UpdateMaintenanceRequest updateMaintenanceRequest) {
-        checkIfMaintenanceExists(maintenanceId);
-        carService.checkIfCarExists(updateMaintenanceRequest.getCarId());
+        rules.checkIfMaintenanceExists(maintenanceId);
+
         Maintenance maintenance = modelMapper.map(updateMaintenanceRequest, Maintenance.class);
         maintenance.setId(maintenanceId);
         maintenanceRepository.save(maintenance);
@@ -85,7 +87,7 @@ public class MaintenanceManager implements MaintenanceService {
 
     @Override
     public GetMaintenanceResponse returnCarFromMaintenance(int carId) {
-        checkIfCarIsNotUnderMaintenance(carId);
+        rules.checkIfCarIsNotUnderMaintenance(carId);
         Maintenance maintenance = maintenanceRepository.findMaintenanceByCarIdAndIsRepairedFalse(carId);
         maintenance.setRepaired(true);
         maintenance.setDateOut(LocalDateTime.now());
@@ -96,17 +98,12 @@ public class MaintenanceManager implements MaintenanceService {
         return response;
     }
 
-    private void checkIfMaintenanceExists(int carId) {
-        if (maintenanceRepository.existsByCarIdAndIsRepairedFalse(carId)) {
-            throw new RuntimeException("Araç şuanda bakımda!");
-        }
-    }
 
-    public void checkIfCarIsNotUnderMaintenance(int maintenanceId) {
-        if (!maintenanceRepository.existsById(maintenanceId)){
-            throw new RuntimeException("Araç şuan bakımda");
+    private void makeCarAvailableIfIsRepaired(int maintenanceId) {
+        int carId = maintenanceRepository.findById(maintenanceId).get().getCar().getId();
+        if (maintenanceRepository.findById(maintenanceId).get().isRepaired()) {
+            carService.changeStateCar(carId, State.AVAILABLE);
         }
-
     }
 
     public void checkIfChangeIsRepaired(int maintenanceId, int carId) {
@@ -115,17 +112,6 @@ public class MaintenanceManager implements MaintenanceService {
         }
     }
 
-    private void checkCarAvailabilityForMaintenance(int carId) {
-        if (carService.getById(carId).getState().equals(State.RENTED)) {
-            throw new RuntimeException("Araç kirada olduğu için bakıma alınamaz!");
-        }
-    }
-    private void makeCarAvailableIfIsRepaired(int maintenanceId){
-        int carId=maintenanceRepository.findById(maintenanceId).get().getCar().getId();
-        if(maintenanceRepository.findById(maintenanceId).get().isRepaired()){
-            carService.changeStateCar(carId,State.AVAILABLE);
-        }
-    }
 }
 /* private void checkIfMaintenance(int carId){
         if (!maintenanceRepository.existsByCarIdAndRepairedFalse(carId)) {

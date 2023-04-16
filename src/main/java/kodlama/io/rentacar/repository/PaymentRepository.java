@@ -1,16 +1,15 @@
 package kodlama.io.rentacar.repository;
 
-import kodlama.io.rentacar.business.dto.request.PaymentRequest;
 import kodlama.io.rentacar.entities.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-public interface PaymentRepository extends JpaRepository<Payment,Integer> {
+public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     Payment findByCardNumber(String cardNumber);//rentalda kullanılacak
+
     boolean existsByCardNumber(String cardNumber);
+
     boolean existsByCardNumberAndCardHolderAndCardExpirationMonthAndCardExpirationYearAndCardCvv(
-            String cardNumber,String cardHolder,int cardExpirationMonth,int cardExpirationYear,String cardCvv
+            String cardNumber, String cardHolder, int cardExpirationMonth, int cardExpirationYear, String cardCvv
     );
     //SPel-> spring experssion language
  /*   @Query("SELECT CASE WHEN COUNT(p)>0 THEN true ELSE false END"+

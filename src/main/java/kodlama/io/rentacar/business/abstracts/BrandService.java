@@ -12,9 +12,13 @@ import java.util.List;
 public interface BrandService {
     // ekleme silme güncelleme getirme toplugetirme
     CreateBrandResponse add(CreateBrandRequest brand);
+
     void delete(int brand_id);
+
     UpdateBrandResponse update(int brand_id, UpdateBrandRequest brand);
+
     GetBrandResponse getById(int brand_id);
+
     List<GetAllBrandsResponse> getAll();
-    void checkIfBrandExists(int brand_id);
+    //void checkIfBrandExists(int brand_id);
 }

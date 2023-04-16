@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @RequestMapping("/api/brands")
 @AllArgsConstructor
@@ -36,8 +37,9 @@ public class BradControllers {
 
     @PutMapping("/{id}")
     public UpdateBrandResponse update(@PathVariable int id, @RequestBody UpdateBrandRequest request) {
-        return service.update(id,request);
+        return service.update(id, request);
     }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {

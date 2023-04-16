@@ -15,6 +15,6 @@ import lombok.Setter;
 public class CreatePaymentRequest extends PaymentRequest {
 
     @NotNull
-    @Min(value=1)
+    @Min(value = 1)
     private double balance;// bakiye
 }

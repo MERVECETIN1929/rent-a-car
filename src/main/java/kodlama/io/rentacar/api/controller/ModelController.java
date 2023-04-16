@@ -11,29 +11,35 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/models")
 public class ModelController {
     private final ModelService service;
+
     @GetMapping
-    List<GetAllModelsResponse> getAll(){
+    List<GetAllModelsResponse> getAll() {
         return service.getAll();
     }
+
     @GetMapping("/{id}")
-    GetModelResponse getById(@PathVariable int id){
+    GetModelResponse getById(@PathVariable int id) {
         return service.getById(id);
     }
+
     @PostMapping
-    CreateModelResponse add(@RequestBody CreateModelRequest request){
+    CreateModelResponse add(@RequestBody CreateModelRequest request) {
         return service.add(request);
     }
+
     @PutMapping("/{id}")
-    UpdateModelResponse update(@PathVariable int id, @RequestBody UpdateModelRequest request){
-        return service.update(id,request);
+    UpdateModelResponse update(@PathVariable int id, @RequestBody UpdateModelRequest request) {
+        return service.update(id, request);
     }
+
     @DeleteMapping("/{id}")
-    void delete(@PathVariable int id){
+    void delete(@PathVariable int id) {
         service.delete(id);
     }
 }

@@ -2,9 +2,6 @@ package kodlama.io.rentacar.business.dto.response.create;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import kodlama.io.rentacar.entities.Model;
 import kodlama.io.rentacar.entities.enums.State;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

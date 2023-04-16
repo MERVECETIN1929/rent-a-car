@@ -1,6 +1,5 @@
 package kodlama.io.rentacar.business.dto.request;
 
-import jakarta.persistence.SecondaryTable;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,11 +17,11 @@ import org.hibernate.validator.constraints.Length;
 public class PaymentRequest {
     // günümüzün değerleri nasıl alınır
     @NotBlank(message = "Kart Numarası boş bırakılamaz")// String @NotNull ->sayısal mesajlar
-    @Length(min=16,max=16,message = "Kart numarası 16 haneden oluşmalıdır.")
+    @Length(min = 16, max = 16, message = "Kart numarası 16 haneden oluşmalıdır.")
     private String cardNumber;
 
     @NotBlank
-    @Length(min=5)
+    @Length(min = 5)
     private String cardHolder;
 
     @NotNull
@@ -31,10 +30,10 @@ public class PaymentRequest {
 
     @NotNull
     @Max(value = 12)
-    @Min(value=1)
+    @Min(value = 1)
     private int cardExpirationMonth;
 
     @NotBlank
-    @Length(min=3,max=3)
+    @Length(min = 3, max = 3)
     private String cardCvv;
 }
