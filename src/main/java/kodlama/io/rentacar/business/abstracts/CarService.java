@@ -15,14 +15,14 @@ Zaten bakımda olan araba bakıma gönderilememez. Kirada olan araba bakıma gö
 Bakımda olan araba araba listesinde görüntülenip görüntülenmeyeceğine kullanıcıdan bir parametre alarak gelmelidir veya gelmemelidir.*/
 public interface CarService {
     // ekleme silme güncelleme getirme toplugetirme
-    CreateCarResponse add(CreateCarRequest brand);
-    void delete(int brand_id);
-    UpdateCarResponse update(int brand_id, UpdateCarRequest brand);
-    GetCarResponse getById(int brand_id);
+    CreateCarResponse add(CreateCarRequest car);
+    void delete(int carId);
+    UpdateCarResponse update(int carId, UpdateCarRequest car);
+    GetCarResponse getById(int carId);
     List<GetAllCarsResponse> getAll(boolean includeMaintenance);
     void changeStateCar(int carId, State state);
     State getStateCar(int carId);
-    void checkIfCarExists(int car_id);
+    void checkIfCarExists(int carId);
 
 
 }

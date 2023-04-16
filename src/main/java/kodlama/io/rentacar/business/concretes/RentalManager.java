@@ -1,15 +1,20 @@
 package kodlama.io.rentacar.business.concretes;
 
 import kodlama.io.rentacar.business.abstracts.CarService;
+import kodlama.io.rentacar.business.abstracts.InvoiceService;
 import kodlama.io.rentacar.business.abstracts.PaymentService;
 import kodlama.io.rentacar.business.abstracts.RentalService;
+import kodlama.io.rentacar.business.dto.request.create.CreateInvoiceRequest;
 import kodlama.io.rentacar.business.dto.request.create.CreateRentalRequest;
 import kodlama.io.rentacar.business.dto.request.update.UpdateRentalRequest;
+import kodlama.io.rentacar.business.dto.response.create.CreateInvoiceResponse;
 import kodlama.io.rentacar.business.dto.response.create.CreateRentalResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetAllRentalResponse;
+import kodlama.io.rentacar.business.dto.response.get.GetCarResponse;
 import kodlama.io.rentacar.business.dto.response.get.GetRentalResponse;
 import kodlama.io.rentacar.business.dto.response.update.UpdateRentalResponse;
 import kodlama.io.rentacar.common.dto.CreateRentedPaymentRequest;
+import kodlama.io.rentacar.entities.Car;
 import kodlama.io.rentacar.entities.Rental;
 import kodlama.io.rentacar.entities.enums.State;
 import kodlama.io.rentacar.repository.RentalRepository;
@@ -28,6 +33,7 @@ public class RentalManager implements RentalService {
     private final RentalRepository repository;
     private final CarService carService;
     private final PaymentService paymentService;
+    private final InvoiceService invoiceService;
     @Override
     public List<GetAllRentalResponse> getAll() {
         List<Rental> rentalList =repository.findAll();
@@ -48,6 +54,7 @@ public class RentalManager implements RentalService {
        checkIfCarRented(request.getCarId());
        checkIfCarMaintenance(request.getCarId());
        Rental rental =mapper.map(request, Rental.class);
+
        rental.setId(0);
        rental.setStartDate(LocalDateTime.now());
 
@@ -61,10 +68,26 @@ public class RentalManager implements RentalService {
 
        repository.save(rental);
        // burada bir hata oluşursa carı etkilemesin diye üstte yazılır
-       carService.changeStateCar(request.getCarId(), State.RENTED);
+        carService.changeStateCar(request.getCarId(), State.RENTED);
+        // fatura oluşumu otomotik olarak gerçekleşmeli
+        CreateInvoiceRequest createInvoiceRequest=new CreateInvoiceRequest();
+        createInvoiceRequest(request, createInvoiceRequest,rental);
+        invoiceService.add(createInvoiceRequest);
+
        return mapper.map(rental, CreateRentalResponse.class);
     }
 
+    private  void createInvoiceRequest(CreateRentalRequest request, CreateInvoiceRequest createInvoiceRequest, Rental rental) {
+        GetCarResponse car=carService.getById(request.getCarId());
+        createInvoiceRequest.setBrandName(car.getModelBrandName());
+        createInvoiceRequest.setPlate(car.getPlate());
+        createInvoiceRequest.setCardHolder(request.getPaymentRequest().getCardHolder());
+        createInvoiceRequest.setDailyPrice(request.getDailyPrice());
+        createInvoiceRequest.setModelYear(car.getModelYear());
+        createInvoiceRequest.setModelName(car.getModelName());
+        createInvoiceRequest.setRentedForDays(request.getRentedForDays());
+        createInvoiceRequest.setRented(rental.getStartDate());
+    }
 
 
     @Override
